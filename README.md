@@ -1,14 +1,14 @@
-# Agentic Content Generation System (Gemini + LangGraph)
+# Agentic Content Generation System
 
 ## Overview
 A production-ready **Agentic AI System** that transforms raw product data into high-converting marketing content. Built on **LangGraph** and **Google Gemini**, it features a robust multi-agent architecture with strict data validation.
 
 ## Features
-- 🧠 **True Agentic Reasoning**: Agents plan and reason before generating.
-- 🔄 **Self-Correction Loop**: Reviewer Agent critiques and regenerates poor content.
-- ⚡ **Powered by Gemini**: Uses `gemini-1.5-flash` for fast, high-quality inference.
-- 🛡️ **Robust Architecture**: Cyclic Graph with error handling and retries.
-- ✅ **Strict Validation**: 100% Pydantic-validated JSON outputs.
+-  **True Agentic Reasoning**: Agents plan and reason before generating.
+-  **Self-Correction Loop**: Reviewer Agent critiques and regenerates poor content.
+-  **Powered by Gemini**: Uses `gemini-1.5-flash` for fast, high-quality inference.
+-  **Robust Architecture**: Cyclic Graph with error handling and retries.
+-  **Strict Validation**: 100% Pydantic-validated JSON outputs.
 
 ## Repository Structure
 ```text
