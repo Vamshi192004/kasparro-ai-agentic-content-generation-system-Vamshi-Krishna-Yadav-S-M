@@ -1,24 +1,40 @@
-"""
-Parser Agent - Normalizes Input Data
-"""
-from core.agent_base import Agent
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.prompts import ChatPromptTemplate
+from core.state import AgentState
+from core.schemas import ProductSchema
+import json
+import os
 
-class ParserAgent(Agent):
-    def __init__(self):
-        super().__init__("ParserAgent")
+def parser_node(state: AgentState):
+    raw_data = state['raw_data']
+    
+    # Initialize Gemini
+    # Ensure GOOGLE_API_KEY is set in environment
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
+    structured_llm = llm.with_structured_output(ProductSchema)
 
-    def process(self, raw_data):
-        self.log("Normalizing input data...")
-        # In a real scenario, this would handle various input formats and validation.
-        # For this demo, we ensure the structure matches our internal expectation.
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", """You are an expert Data Engineer specializing in E-commerce product data normalization.
         
-        return {
-            "id": raw_data.get("productId", "UNKNOWN"),
-            "name": raw_data.get("productName", "Untitled Product"),
-            "category": raw_data.get("category", "General"),
-            "price": raw_data.get("price", {"amount": 0, "currency": "USD"}),
-            "features": raw_data.get("features", []),
-            "specs": raw_data.get("specs", {}),
-            "description": raw_data.get("description", ""),
-            "competitors": raw_data.get("competitors", [])
-        }
+        Your task is to:
+        1. Analyze the raw input JSON.
+        2. Extract key product details (Name, Price, Category, Features, Specs).
+        3. Identify any competitor data if present.
+        4. Normalize the data into a strict schema.
+        
+        If fields are missing, infer reasonable defaults based on the product context or mark as "N/A".
+        Ensure the 'features' list contains at least 5 distinct selling points.
+        """),
+        ("user", "Raw Data: {raw_data}")
+    ])
+
+    chain = prompt | structured_llm
+    
+    try:
+        # Invoke
+        clean_data = chain.invoke({"raw_data": json.dumps(raw_data)})
+        return {"clean_data": clean_data}
+    except Exception as e:
+        print(f"Error in Parser Node: {e}")
+        # Return None or handle error appropriately in a real system
+        return {"clean_data": None}

@@ -4,3 +4,5 @@ __pycache__/
 *.json
 !dataset.json
 .DS_Store
+.env
+logs/

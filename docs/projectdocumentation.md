@@ -1,50 +1,59 @@
-# Project Documentation: AI-Powered Content Generation Pipeline
+# Project Documentation: Agentic Content Generation System
 
-## 1. Problem Statement
-The goal is to design and implement a modular, agentic automation system that can ingest raw product data and autonomously generate structured, machine-readable content pages (FAQ, Product Page, Comparison Page). The system must avoid monolithic scripts, ensuring clear separation of concerns, reusable logic, and a defined orchestration flow.
+## 1. Executive Summary
+This project implements a state-of-the-art, **Agentic AI Pipeline** for automating e-commerce content creation. Unlike traditional script-based automation, this system utilizes a **Directed Acyclic Graph (DAG)** architecture powered by **Google Gemini** to reason, plan, and generate high-quality, structured content (FAQs, Product Pages, Comparisons).
 
-## 2. Solution Overview
-The solution is a Python-based pipeline utilizing a centralized **Orchestrator** to coordinate a set of specialized **Agents**.
-- **Architecture**: Orchestrator -> Parser -> Question Generator -> Page Agents.
-- **Tech Stack**: Python 3.
-- **Key Features**:
-  - **Modular Agents**: Each agent has a single responsibility (Parsing, Question Generation, Page Creation).
-  - **Custom Template Engine**: A structured definition of fields and rules for consistent output.
-  - **Reusable Logic Blocks**: Shared modules for common transformations (e.g., ingredient comparison, benefit extraction).
-  - **JSON Output**: All artifacts are strictly machine-readable.
+## 2. System Architecture
 
-## 3. Scopes & Assumptions
-### Scope
-- **Input**: Single product JSON file (`dataset.json`).
-- **Output**: Three specific JSON files (`faq.json`, `product_page.json`, `comparison_page.json`).
-- **Domain**: Product marketing content (specifically tested with Skincare products).
+### 2.1. Core Frameworks
+- **LangGraph**: Manages the orchestration, state, and control flow (DAG).
+- **LangChain**: Provides the interface for LLM interaction and prompt management.
+- **Pydantic**: Enforces strict data validation and schema compliance for all outputs.
+- **Google Gemini (`gemini-1.5-flash`)**: The underlying intelligence engine.
 
-### Assumptions
-- The input JSON structure is relatively stable (though the Parser handles normalization).
-- "Competitor" data is provided within the input dataset for comparison logic.
-- No external LLM APIs are used; "intelligence" is simulated via rule-based logic blocks and templates for this architectural demonstration.
+### 2.2. Architecture Diagrams
+![System Architecture](System Architecture.png)
+![System Design](SystemDesign.png)
 
-## 4. System Design
-### 4.1. Architecture Diagram
-![System Architecture Diagram](SystemDesign.png)
+*Note: The system now implements a **Cyclic Graph**. If the Reviewer Agent rejects the content, the flow loops back to the Question Generator or Page Agents for regeneration.*
 
-`Input (JSON) -> [Orchestrator] -> [Parser Agent] -> [Question Generator Agent] -> [Page Agents] -> Output (JSON)`
+### 2.3. Data Flow
+1.  **Ingestion**: Raw JSON data is loaded into the `AgentState`.
+2.  **Parsing Node**: The **Parser Agent** normalizes the data.
+3.  **Reasoning Node**: The **Question Generator Agent** creates strategic questions.
+4.  **Generation Nodes (Parallel)**: FAQ, Product Page, and Comparison Agents generate content.
+5.  **Review Node**: The **Reviewer Agent** critiques the output against quality criteria.
+    *   **Pass**: Pipeline finishes.
+    *   **Fail**: Feedback is added to state, and flow **loops back** to Step 3 (max 3 retries).
+6.  **Output**: Final JSON artifacts are validated and saved.
 
-### 4.2. Components
-1.  **Orchestrator**: The controller that manages the DAG (Directed Acyclic Graph) of the pipeline.
-2.  **Logic Blocks**: Reusable functions (`generate_benefits_block`, `compare_ingredients_block`, etc.) used by agents to transform data.
-3.  **Template Engine**: Defines the schema and filling logic for each page type, ensuring structural consistency.
-4.  **Agents**:
-    - `ParserAgent`: Normalizes input.
-    - `QuestionGeneratorAgent`: Uses `extract_usage_block` to create questions.
-    - `FAQPageAgent`: Fills the FAQ Template.
-    - `ProductPageAgent`: Fills the Product Page Template.
-    - `ComparisonPageAgent`: Uses `compare_ingredients_block` to fill the Comparison Template.
+## 3. Agent Specifications
 
-### 4.3. Data Flow
-1.  **Ingest**: Raw data loaded.
-2.  **Normalize**: Parser creates internal model.
-3.  **Enrich**: Question Generator adds 15+ questions.
-4.  **Transform**: Page agents apply Logic Blocks to data.
-5.  **Render**: Data is mapped to Templates.
-6.  **Export**: JSON files saved.
+### 3.1. Parser Agent
+- **Goal**: Data Normalization.
+- **Input**: Raw Dictionary.
+- **Output**: `ProductSchema` (Pydantic).
+- **Logic**: Uses LLM to extract structured fields from unstructured text.
+
+### 3.2. Question Generator Agent
+- **Goal**: User Intent Prediction.
+- **Input**: `ProductSchema`.
+- **Output**: `List[QuestionSchema]`.
+- **Logic**: Generates questions across 4 categories (Usage, Safety, Purchase, Informational).
+
+### 3.3. Page Agents
+- **Goal**: Content Synthesis.
+- **Input**: `ProductSchema` + `List[QuestionSchema]`.
+- **Output**: Page-specific Schemas (`FAQPageSchema`, etc.).
+- **Logic**: Uses role-playing prompts (e.g., "You are a Copywriting Expert") to generate persuasive text.
+
+## 4. Robustness & Reliability
+- **State Management**: A centralized `AgentState` ensures all agents have access to the latest data context.
+- **Error Handling**: Each node implements `try/except` blocks to handle API failures gracefully.
+- **Conditional Logic**: The graph includes checks (e.g., "Did parsing succeed?") to prevent cascading failures.
+- **Schema Validation**: All LLM outputs are forced into Pydantic models, guaranteeing valid JSON.
+
+## 5. Setup & Configuration
+1.  **Environment**: Create a `.env` file with `GOOGLE_API_KEY`.
+2.  **Dependencies**: `pip install -r requirements.txt` (or manually install `langchain`, `langgraph`, `pydantic`, `python-dotenv`, `langchain-google-genai`).
+3.  **Execution**: Run `python src/main_graph.py`.
