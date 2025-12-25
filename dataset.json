@@ -1,0 +1,42 @@
+{
+    "productId": "GB-2025-V3",
+    "productName": "GlowBoost",
+    "category": "Skincare",
+    "price": {
+        "amount": 49.99,
+        "currency": "USD"
+    },
+    "features": [
+        "Vitamin C Infusion",
+        "Hyaluronic Acid Hydration",
+        "SPF 30 Protection",
+        "Vegan Formula",
+        "Cruelty-Free",
+        "Fast Absorption",
+        "Non-Comedogenic",
+        "Recyclable Packaging"
+    ],
+    "specs": {
+        "volume": "50ml",
+        "skinType": "All Skin Types",
+        "application": "Morning and Night",
+        "scent": "Citrus Breeze",
+        "shelfLife": "12 Months"
+    },
+    "description": "GlowBoost is a revolutionary daily moisturizer designed to brighten, hydrate, and protect your skin. Infused with potent Vitamin C and Hyaluronic Acid, it delivers an instant radiance boost while shielding against UV damage.",
+    "competitors": [
+        {
+            "name": "Product B",
+            "price": 39.99,
+            "ingredients": [
+                "Water",
+                "Glycerin",
+                "Synthetic Fragrance"
+            ],
+            "benefits": [
+                "Basic Hydration"
+            ],
+            "volume": "40ml"
+        }
+    ]
+}
